@@ -109,6 +109,10 @@ trait BuilderTrait
         $versionValues = $this->getVersionValues($values);
         $values = $this->getValues($values);
 
+        if (empty($versionValues)) {
+            return parent::update($values);
+        }
+        
         // get records
         $affectedRecords = $this->getAffectedRecords();
 
@@ -120,9 +124,16 @@ trait BuilderTrait
         // update version table records
         $db = $this->model->getConnection();
         foreach ($affectedRecords as $record) {
+            // get current version values
+            $currentVersionValues = $db->table($this->model->getVersionTable())
+                ->where([
+                    [$this->model->getVersionKeyName(), $record->{$this->model->getKeyName()}],
+                    [$this->model->getVersionColumn(), $record->{$this->model->getLatestVersionColumn()}]
+                ])->first();
+            
             // get versioned values from record
             foreach($this->model->getVersionedAttributeNames() as $key) {
-                $recordVersionValues[$key] = (isset($versionValues[$key])) ? $versionValues[$key] : $record->{$key};
+                $recordVersionValues[$key] = (isset($versionValues[$key])) ? $versionValues[$key] : $currentVersionValues->{$key};
             }
 
             // merge versioned values from record and input
