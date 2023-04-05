@@ -3,6 +3,7 @@
 namespace ProAI\Versioning;
 
 use Exception;
+use Illuminate\Database\Query\Expression;
 
 trait BuilderTrait
 {
@@ -19,6 +20,10 @@ trait BuilderTrait
             ? array_merge($columns, $this->query->columns)
             : $columns;
         foreach($tempColumns as $column) {
+            if ($column instanceof Expression) {
+                $column = $column->getValue($this->query->getGrammar());
+            }
+            
             $segments = explode('.', $column);
             if ($segments[0] == $this->model->getTable()) {
                 $this->query->addSelect($this->model->getVersionTable().'.*');
