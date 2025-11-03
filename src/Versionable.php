@@ -35,7 +35,7 @@ trait Versionable
      * Create a new Eloquent query builder for the model.
      *
      * @param  \Illuminate\Database\Query\Builder $query
-     * @return \ProAI\Versioning\Builder|static
+     * @return \ProAI\Versioning\Builder
      */
     public function newEloquentBuilder($query)
     {
